@@ -1,4 +1,6 @@
 let expression = "";
+let history = 
+    JSON.parse(localStorage.getItem("history")) || [];
 
 const operators = ["+", "-", "*", "/"];
 
@@ -20,8 +22,14 @@ buttons.forEach((button) => {
         else if (value === "="){
             if (expression === "") return;
             try {
-                expression = eval(expression);
-                display.value = expression;
+                const result = eval(expression);
+                display.value = result;
+
+                history.push(`${expression} = ${result}`);
+                localStorage.setItem("history", JSON.stringify(history));
+                expression = String(result);
+                renderHistory();
+
             } catch {
                 display.value = "Error";
                 expression = "";
@@ -76,4 +84,22 @@ document.addEventListener("keydown", (event) => {
         const clearBtn = document.querySelector(".clear");
         clearBtn.click();
     }
+});
+
+const historyList = document.getElementById("historyList");
+
+function renderHistory() {
+    historyList.innerHTML = "";
+    history.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        historyList.appendChild(li);;
+    });
+}
+
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+clearHistoryBtn.addEventListener("click", () => {
+    history = [];
+    localStorage.removeItem("history");
+    renderHistory();
 });
